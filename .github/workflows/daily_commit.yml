@@ -2,26 +2,29 @@ name: Daily Commit
 
 on:
   schedule:
-    - cron: "30 6 * * *"
+    # Runs every day at 14:45 UTC (8:15 PM IST)
+    - cron: "45 14 * * *"
   workflow_dispatch:
 
 permissions:
-  contents: write  # ✅ required for push/commit
+  contents: write
 
 jobs:
   auto_commit:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main  # change to your default branch name if different
 
       - name: Commit by 23f3000686@ds.study.iitm.ac.in
         run: |
-          echo "Last run: $(date -u)" > last_run.txt
+          echo "Workflow last run at $(date -u)" > .last_run.txt
           git config user.name "GitHub Action Bot"
           git config user.email "23f3000686@ds.study.iitm.ac.in"
-          git add last_run.txt
-          git diff --quiet && echo "No changes to commit" && exit 0
-          git commit
+          git add .last_run.txt
+          git commit -m "Auto commit: $(date -u)" || echo "No changes to commit"
+          git push origin main
