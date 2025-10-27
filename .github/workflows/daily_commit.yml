@@ -2,9 +2,11 @@ name: Daily Commit
 
 on:
   schedule:
-    # Runs once per day at 06:30 UTC (example — you can change time)
     - cron: "30 6 * * *"
-  workflow_dispatch:  # allows manual run
+  workflow_dispatch:
+
+permissions:
+  contents: write  # ✅ required for push/commit
 
 jobs:
   auto_commit:
@@ -12,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Commit by 23f3000686@ds.study.iitm.ac.in
         run: |
@@ -19,5 +23,5 @@ jobs:
           git config user.name "GitHub Action Bot"
           git config user.email "23f3000686@ds.study.iitm.ac.in"
           git add last_run.txt
-          git commit -m "Daily auto-commit on $(date -u)"
-          git push
+          git diff --quiet && echo "No changes to commit" && exit 0
+          git commit
